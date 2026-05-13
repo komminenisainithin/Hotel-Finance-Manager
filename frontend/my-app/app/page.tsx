@@ -1,11 +1,25 @@
+"use client";
 
-import Link from "next/link";
+import { useEffect } from "react";
+
+import { useRouter } from "next/navigation";
+
+import { useAuth } from "./context/AuthContext";
 
 export default function Home() {
-  return (
-    <div className="bg-gray-100 min-h-screen">
-      <Link href="/login">Login</Link>
-     
-    </div>
-  );
+  const { token, loading } = useAuth();
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading) {
+      if (token) {
+        router.push("/dashboard");
+      } else {
+        router.push("/login");
+      }
+    }
+  }, [token, loading, router]);
+
+  return <div>Loading...</div>;
 }

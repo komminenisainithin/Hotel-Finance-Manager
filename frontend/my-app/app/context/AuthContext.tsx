@@ -1,116 +1,153 @@
 "use client";
 
-import { isAxiosError } from "axios";
 import {
   createContext,
-  useCallback,
   useContext,
-  useEffect,
-  useMemo,
   useState,
-  type ReactNode,
+  useEffect,
+  ReactNode,
 } from "react";
-import axiosInstance from "../utils/axiosInstance";
-import { AUTH_TOKEN_KEY, AUTH_USER_KEY } from "../lib/authStorage";
+import { useRouter } from "next/navigation";
 
-export type LoginResult =
-  | { ok: true }
-  | { ok: false; message: string };
+import axiosInstance from "../lib/axiosInstance";
 
-type AuthUser = Record<string, unknown>;
-
-type AuthContextValue = {
-  token: string | null;
-  user: AuthUser | null;
-  isReady: boolean;
-  login: (email: string, password: string) => Promise<LoginResult>;
-  logout: () => void;
+type User = {
+  name: string;
+  email: string;
+  mobile: string;
 };
 
-const AuthContext = createContext<AuthContextValue | null>(null);
+type AuthContextType = {
+  user: User | null;
+  token: string | null;
+  logout: () => void;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+};
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export const AuthContext = createContext<AuthContextType>({
+  user: null,
+  token: null,
+  logout: () => {},
+  loading: true,
+  login: async () => {},
+});
+
+export const AuthProvider = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+
   const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isReady, setIsReady] = useState(false);
+
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    queueMicrotask(() => {
+    const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+
+    const clearSession = () => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+    };
+
+    if (storedUser === "undefined" || storedUser === "null") {
+      clearSession();
+    } else if (storedToken && !storedUser) {
+      clearSession();
+    } else if (!storedToken && storedUser) {
+      clearSession();
+    } else if (storedToken && storedUser) {
       try {
-        const storedToken = localStorage.getItem(AUTH_TOKEN_KEY);
-        const storedUser = localStorage.getItem(AUTH_USER_KEY);
-        if (storedToken) setToken(storedToken);
-        if (storedUser) setUser(JSON.parse(storedUser) as AuthUser);
-      } catch {
-        localStorage.removeItem(AUTH_TOKEN_KEY);
-        localStorage.removeItem(AUTH_USER_KEY);
-      } finally {
-        setIsReady(true);
-      }
-    });
-  }, []);
-
-  const login = useCallback(async (email: string, password: string) => {
-    try {
-      const { data } = await axiosInstance.post<{
-        success?: boolean;
-        message?: string;
-        token?: string;
-        data?: AuthUser;
-      }>("/auth/login", { email, password });
-      if (data.success && data.token) {
-        localStorage.setItem(AUTH_TOKEN_KEY, data.token);
-        if (data.data) {
-          localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.data));
-          setUser(data.data);
+        const parsed: unknown = JSON.parse(storedUser);
+        if (
+          parsed &&
+          typeof parsed === "object" &&
+          "email" in parsed &&
+          typeof (parsed as { email: unknown }).email === "string"
+        ) {
+          setToken(storedToken);
+          setUser(parsed as User);
         } else {
-          localStorage.removeItem(AUTH_USER_KEY);
-          setUser(null);
+          clearSession();
         }
-        setToken(data.token);
-        return { ok: true as const };
+      } catch {
+        clearSession();
       }
-      const message = data.message ?? "Login failed";
-      return { ok: false as const, message };
-    } catch (err: unknown) {
-      let message = "Login failed";
-      if (isAxiosError(err)) {
-        const body = err.response?.data as { message?: string } | undefined;
-        message = body?.message ?? err.message ?? message;
-      } else if (err instanceof Error) {
-        message = err.message;
-      }
-      return { ok: false as const, message };
     }
+
+    setLoading(false);
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem(AUTH_TOKEN_KEY);
-    localStorage.removeItem(AUTH_USER_KEY);
+  const login = async (
+    email: string,
+    password: string
+  ) => {
+    setLoading(true);
+
+    try {
+      const response = await axiosInstance.post(
+        "/auth/login",
+        {
+          email,
+          password,
+        }
+      );
+
+      if (
+        response.status === 200 &&
+        response.data?.success &&
+        response.data.token &&
+        response.data.data
+      ) {
+        const nextToken = response.data.token as string;
+        const nextUser = response.data.data as User;
+
+        localStorage.setItem("token", nextToken);
+        localStorage.setItem("user", JSON.stringify(nextUser));
+
+        setToken(nextToken);
+        setUser(nextUser);
+
+        router.replace("/dashboard");
+      }
+    } catch (error) {
+      console.log("Login Error:", error);
+
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = () => {
     setToken(null);
-    setUser(null);
-  }, []);
 
-  const value = useMemo<AuthContextValue>(
-    () => ({
-      token,
-      user,
-      isReady,
-      login,
-      logout,
-    }),
-    [token, user, isReady, login, logout]
-  );
+    setUser(null);
+
+    localStorage.removeItem("token");
+
+    localStorage.removeItem("user");
+
+    router.replace("/login");
+  };
 
   return (
-    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        logout,
+        loading,
+        login,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
-  return ctx;
-}
+export const useAuth = () => useContext(AuthContext);
