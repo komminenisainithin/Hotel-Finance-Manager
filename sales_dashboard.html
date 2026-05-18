@@ -1,0 +1,266 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .dash { padding: 1.25rem 0; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+  .topbar h2 { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
+  .btn-create { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; background: #185FA5; color: #fff; border: none; border-radius: var(--border-radius-md); padding: 8px 16px; cursor: pointer; }
+  .btn-create:hover { background: #0C447C; }
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.25rem; }
+  .metric { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+  .metric-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .metric-val { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+  .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.25rem; }
+  .chart-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 16px; }
+  .chart-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .chart-sub { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 12px; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 10px; font-size: 12px; color: var(--color-text-secondary); }
+  .legend span { display: flex; align-items: center; gap: 4px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+  .table-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+  .table-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .table-header span { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+  th { text-align: left; padding: 10px 14px; font-size: 12px; font-weight: 500; color: var(--color-text-secondary); background: var(--color-background-secondary); border-bottom: 0.5px solid var(--color-border-tertiary); }
+  td { padding: 10px 14px; color: var(--color-text-primary); border-bottom: 0.5px solid var(--color-border-tertiary); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--color-background-secondary); }
+  .date-link { color: #185FA5; cursor: pointer; text-decoration: underline; font-weight: 500; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+  .badge-morning { background: #E6F1FB; color: #0C447C; }
+  .badge-evening { background: #FAEEDA; color: #633806; }
+  .action-btn { background: none; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 4px 10px; font-size: 12px; cursor: pointer; color: var(--color-text-secondary); display: inline-flex; align-items: center; gap: 4px; }
+  .action-btn:hover { background: var(--color-background-secondary); }
+  .action-btn.del { color: #A32D2D; border-color: #F7C1C1; }
+  .action-btn.del:hover { background: #FCEBEB; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 24px; width: 360px; max-width: 94vw; }
+  .modal h3 { font-size: 16px; font-weight: 500; margin-bottom: 16px; color: var(--color-text-primary); }
+  .modal-row { margin-bottom: 12px; }
+  .modal-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 3px; }
+  .modal-val { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+  .modal-actions { display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end; }
+  .modal-actions button { font-size: 13px; padding: 7px 16px; border-radius: var(--border-radius-md); cursor: pointer; }
+  .btn-close { background: none; border: 0.5px solid var(--color-border-tertiary); color: var(--color-text-secondary); }
+  .btn-close:hover { background: var(--color-background-secondary); }
+</style>
+
+<div class="dash">
+  <div class="topbar">
+    <h2>Sales dashboard</h2>
+    <button class="btn-create" onclick="openCreate()"><i class="ti ti-plus" aria-hidden="true"></i> Create sale</button>
+  </div>
+
+  <div class="metrics" id="metrics"></div>
+
+  <div class="charts">
+    <div class="chart-card">
+      <div class="chart-title">Morning vs evening — combined</div>
+      <div class="chart-sub">Grouped by date</div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#378ADD;"></span>Morning</span>
+        <span><span class="legend-dot" style="background:#EF9F27;border-radius:2px;border:2px dashed #BA7517;background:none;"></span>Evening</span>
+      </div>
+      <div style="position:relative;height:220px;"><canvas id="chart1" role="img" aria-label="Grouped bar chart showing morning and evening sales by date">Morning and evening sales comparison by date.</canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Morning sales trend</div>
+      <div class="chart-sub">Line chart over time</div>
+      <div class="legend"><span><span class="legend-dot" style="background:#378ADD;"></span>Morning</span></div>
+      <div style="position:relative;height:220px;"><canvas id="chart2" role="img" aria-label="Line chart of morning sales over dates">Morning sales trend.</canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Evening sales trend</div>
+      <div class="chart-sub">Line chart over time</div>
+      <div class="legend"><span><span class="legend-dot" style="background:#EF9F27;"></span>Evening</span></div>
+      <div style="position:relative;height:220px;"><canvas id="chart3" role="img" aria-label="Line chart of evening sales over dates">Evening sales trend.</canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Total sales by date</div>
+      <div class="chart-sub">Daily totals</div>
+      <div class="legend"><span><span class="legend-dot" style="background:#1D9E75;"></span>Total</span></div>
+      <div style="position:relative;height:220px;"><canvas id="chart4" role="img" aria-label="Bar chart of total daily sales">Total sales per day.</canvas></div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <span>Sales records</span>
+      <span style="font-size:12px;color:var(--color-text-secondary);" id="row-count"></span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:40px;">#</th>
+          <th style="width:110px;">Date</th>
+          <th style="width:90px;">Morning</th>
+          <th style="width:90px;">Evening</th>
+          <th style="width:90px;">Total</th>
+          <th style="width:130px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="viewModal">
+  <div class="modal">
+    <h3 id="modal-title">Sale detail</h3>
+    <div class="modal-row"><div class="modal-label">Sale ID</div><div class="modal-val" id="m-id"></div></div>
+    <div class="modal-row"><div class="modal-label">Date</div><div class="modal-val" id="m-date"></div></div>
+    <div class="modal-row" style="display:flex;gap:24px;">
+      <div><div class="modal-label">Morning</div><div class="modal-val" id="m-morning"></div></div>
+      <div><div class="modal-label">Evening</div><div class="modal-val" id="m-evening"></div></div>
+      <div><div class="modal-label">Total</div><div class="modal-val" id="m-total"></div></div>
+    </div>
+    <div class="modal-row"><div class="modal-label">Created</div><div class="modal-val" id="m-created" style="font-size:13px;"></div></div>
+    <div class="modal-actions">
+      <button class="btn-close" onclick="closeModal('viewModal')">Close</button>
+      <button class="btn-create" style="font-size:13px;" onclick="closeModal('viewModal')"><i class="ti ti-edit" aria-hidden="true"></i> Edit</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="createModal">
+  <div class="modal">
+    <h3>Create sale</h3>
+    <div class="modal-row"><div class="modal-label">Date</div><input type="date" id="c-date" style="width:100%;margin-top:4px;"></div>
+    <div class="modal-row" style="display:flex;gap:12px;">
+      <div style="flex:1;"><div class="modal-label">Morning (₹)</div><input type="number" id="c-morning" placeholder="0" style="width:100%;margin-top:4px;"></div>
+      <div style="flex:1;"><div class="modal-label">Evening (₹)</div><input type="number" id="c-evening" placeholder="0" style="width:100%;margin-top:4px;"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-close" onclick="closeModal('createModal')">Cancel</button>
+      <button class="btn-create" style="font-size:13px;" onclick="handleCreate()"><i class="ti ti-check" aria-hidden="true"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const raw = [
+  {_id:"6a06bf5498dbd47b5ebae443",salesId:1,morning:2900,evening:1500,date:"2026-05-10T10:30:00.000Z",createdAt:"2026-05-15T06:38:12.712Z",total:4400},
+  {_id:"6a06bf8798dbd47b5ebae444",salesId:2,morning:2300,evening:1500,date:"2026-05-11T10:30:00.000Z",createdAt:"2026-05-15T06:39:03.163Z",total:3800},
+  {_id:"6a06bf9698dbd47b5ebae445",salesId:3,morning:3000,evening:1300,date:"2026-05-11T10:30:00.000Z",createdAt:"2026-05-15T06:39:18.262Z",total:4300},
+  {_id:"6a06bfbc98dbd47b5ebae446",salesId:4,morning:3500,evening:1400,date:"2026-05-13T10:30:00.000Z",createdAt:"2026-05-15T06:39:56.924Z",total:4900},
+  {_id:"6a06bfce98dbd47b5ebae447",salesId:5,morning:3200,evening:1600,date:"2026-05-14T10:30:00.000Z",createdAt:"2026-05-15T06:40:14.371Z",total:4800},
+  {_id:"6a06bfdc98dbd47b5ebae448",salesId:6,morning:3000,evening:1000,date:"2026-05-15T10:30:00.000Z",createdAt:"2026-05-15T06:40:28.043Z",total:4000},
+];
+
+let data = raw.map(d => ({...d}));
+
+function fmt(n) { return '₹' + n.toLocaleString('en-IN'); }
+function fmtDate(s) { return new Date(s).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+function fmtDateShort(s) { return new Date(s).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}); }
+
+function renderMetrics() {
+  const totalMorning = data.reduce((a,d)=>a+d.morning,0);
+  const totalEvening = data.reduce((a,d)=>a+d.evening,0);
+  const totalSales = data.reduce((a,d)=>a+d.total,0);
+  const avgTotal = Math.round(totalSales / data.length);
+  document.getElementById('metrics').innerHTML = `
+    <div class="metric"><div class="metric-label">Total morning</div><div class="metric-val">${fmt(totalMorning)}</div></div>
+    <div class="metric"><div class="metric-label">Total evening</div><div class="metric-val">${fmt(totalEvening)}</div></div>
+    <div class="metric"><div class="metric-label">Grand total</div><div class="metric-val">${fmt(totalSales)}</div></div>
+    <div class="metric"><div class="metric-label">Avg per day</div><div class="metric-val">${fmt(avgTotal)}</div></div>
+  `;
+}
+
+function renderTable() {
+  document.getElementById('row-count').textContent = data.length + ' records';
+  document.getElementById('tbl-body').innerHTML = data.map((d,i) => `
+    <tr>
+      <td style="color:var(--color-text-secondary);">${d.salesId}</td>
+      <td><span class="date-link" onclick="viewDetail(${i})">${fmtDate(d.date)}</span></td>
+      <td><span class="badge badge-morning">${fmt(d.morning)}</span></td>
+      <td><span class="badge badge-evening">${fmt(d.evening)}</span></td>
+      <td style="font-weight:500;">${fmt(d.total)}</td>
+      <td>
+        <button class="action-btn" onclick="editRow(${i})"><i class="ti ti-edit" aria-hidden="true"></i> Edit</button>
+        <button class="action-btn del" onclick="deleteRow(${i})"><i class="ti ti-trash" aria-hidden="true"></i> Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+let c1,c2,c3,c4;
+function renderCharts() {
+  const labels = data.map(d=>fmtDateShort(d.date)+' #'+d.salesId);
+  if(c1) c1.destroy(); if(c2) c2.destroy(); if(c3) c3.destroy(); if(c4) c4.destroy();
+
+  c1 = new Chart(document.getElementById('chart1'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'Morning',data:data.map(d=>d.morning),backgroundColor:'#378ADD',borderRadius:3},
+      {label:'Evening',data:data.map(d=>d.evening),backgroundColor:'rgba(0,0,0,0)',borderColor:'#BA7517',borderWidth:2,borderDash:[4,2],type:'bar',borderRadius:3,
+        borderSkipped:false,borderDash:[4,4]}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'₹'+v.toLocaleString('en-IN')},grid:{color:'rgba(128,128,128,0.1)'}},x:{ticks:{font:{size:10}}}}}
+  });
+
+  c2 = new Chart(document.getElementById('chart2'),{
+    type:'line',
+    data:{labels,datasets:[{label:'Morning',data:data.map(d=>d.morning),borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,0.08)',tension:0.3,pointRadius:4,pointBackgroundColor:'#378ADD',fill:true}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'₹'+v.toLocaleString('en-IN')},grid:{color:'rgba(128,128,128,0.1)'}},x:{ticks:{font:{size:10}}}}}
+  });
+
+  c3 = new Chart(document.getElementById('chart3'),{
+    type:'line',
+    data:{labels,datasets:[{label:'Evening',data:data.map(d=>d.evening),borderColor:'#EF9F27',backgroundColor:'rgba(239,159,39,0.08)',tension:0.3,pointRadius:4,pointBackgroundColor:'#EF9F27',fill:true}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'₹'+v.toLocaleString('en-IN')},grid:{color:'rgba(128,128,128,0.1)'}},x:{ticks:{font:{size:10}}}}}
+  });
+
+  c4 = new Chart(document.getElementById('chart4'),{
+    type:'bar',
+    data:{labels,datasets:[{label:'Total',data:data.map(d=>d.total),backgroundColor:'#1D9E75',borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'₹'+v.toLocaleString('en-IN')},grid:{color:'rgba(128,128,128,0.1)'}},x:{ticks:{font:{size:10}}}}}
+  });
+}
+
+function render() { renderMetrics(); renderTable(); renderCharts(); }
+
+function viewDetail(i) {
+  const d = data[i];
+  document.getElementById('modal-title').textContent = 'Sale #' + d.salesId;
+  document.getElementById('m-id').textContent = d.salesId;
+  document.getElementById('m-date').textContent = fmtDate(d.date);
+  document.getElementById('m-morning').textContent = fmt(d.morning);
+  document.getElementById('m-evening').textContent = fmt(d.evening);
+  document.getElementById('m-total').textContent = fmt(d.total);
+  document.getElementById('m-created').textContent = fmtDate(d.createdAt);
+  document.getElementById('viewModal').classList.add('open');
+}
+
+function deleteRow(i) {
+  if(confirm('Delete sale #' + data[i].salesId + '?')) { data.splice(i,1); render(); }
+}
+
+function editRow(i) {
+  alert('Edit sale #' + data[i].salesId + ' — connect to your API to update.');
+}
+
+function openCreate() { document.getElementById('createModal').classList.add('open'); }
+
+function handleCreate() {
+  const date = document.getElementById('c-date').value;
+  const morning = parseInt(document.getElementById('c-morning').value)||0;
+  const evening = parseInt(document.getElementById('c-evening').value)||0;
+  if(!date) { alert('Please select a date.'); return; }
+  const maxId = data.reduce((m,d)=>Math.max(m,d.salesId),0);
+  data.push({_id:'new'+Date.now(),salesId:maxId+1,morning,evening,date:date+'T10:30:00.000Z',createdAt:new Date().toISOString(),total:morning+evening});
+  closeModal('createModal');
+  document.getElementById('c-date').value='';
+  document.getElementById('c-morning').value='';
+  document.getElementById('c-evening').value='';
+  render();
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', function(e){ if(e.target===this) this.classList.remove('open'); }));
+
+render();
+</script>
