@@ -4,7 +4,7 @@ export const createSalesController = async (req, res) => {
     try {
         const userId = req.user.id;
         const { morning, evening, date } = req.body;
-        const result = await createSalesService(userId, morning, evening, date);
+        const result = await createSalesService(userId, { morning, evening, date });
         res.status(result.status).json(result);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -32,8 +32,8 @@ export const getSalesController = async (req, res) => {
 
 export const getSalesByIdController = async (req, res) => {
     try {
-        const { id } = req.params;
-        const result = await getSalesByIdService(id);
+        const { salesId } = req.params;
+        const result = await getSalesByIdService(salesId);
         res.status(result.status).json(result);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -42,9 +42,9 @@ export const getSalesByIdController = async (req, res) => {
 
 export const updateSalesController = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { salesId } = req.params;
         const { morning, evening, date } = req.body;
-        const result = await updateSales(id, morning, evening, date);
+        const result = await updateSales(salesId, { morning, evening, date });
         res.status(result.status).json(result);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -53,8 +53,8 @@ export const updateSalesController = async (req, res) => {
 
 export const deleteSalesController = async (req, res) => {
     try {
-        const { id } = req.params;
-        const result = await deleteSales(id);
+        const { salesId } = req.params;
+        const result = await deleteSales(salesId);
         res.status(result.status).json(result);
     } catch (error) {
         res.status(500).json({ message: error.message });

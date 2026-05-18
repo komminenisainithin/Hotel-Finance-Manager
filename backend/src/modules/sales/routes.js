@@ -8,8 +8,8 @@ router.use(authMiddleware);
 
 router.post("/", createSalesController);
 router.get("/", getSalesController);
-router.get("/:id", getSalesByIdController);
-router.put("/:id", updateSalesController);
-router.delete("/:id", deleteSalesController);
+router.get("/:salesId", getSalesByIdController);
+router.put("/:salesId", updateSalesController);
+router.delete("/:salesId", deleteSalesController);
 
 export default router;

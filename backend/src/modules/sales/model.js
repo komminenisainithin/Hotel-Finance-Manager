@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 
 const salesSchema = new mongoose.Schema({
+    salesId: {
+        type: Number,
+        unique: true,
+        required: true,
+    },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -25,9 +30,8 @@ const salesSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-salesSchema.pre("save", function (next) {
-    this.total = this.morning + this.evening;
-    next();
+salesSchema.pre("save", function () {
+    this.total = Number(this.morning) + Number(this.evening);
 });
 
 const Sales = mongoose.model("Sales", salesSchema);
