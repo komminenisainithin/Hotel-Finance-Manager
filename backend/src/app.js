@@ -4,14 +4,25 @@ import routes from "./routes/index.js";
 
 const app = express();
 
-app.use(cors( {
-    origin: "http://localhost:3000",
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+];
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    exposedHeaders: ["Content-Type", "Authorization"],
-    preflightContinue: false,
-} ));
+  })
+);
 app.use(express.json());
 
 app.get("/", (req, res) => {

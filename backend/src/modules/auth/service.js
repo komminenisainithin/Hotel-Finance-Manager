@@ -42,7 +42,9 @@ export const loginUser = async ({email, password}) => {
             status: 401
         };
     }
-    const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET, {expiresIn: "1h"});
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+    });
     const { password: _, ...userData } = user.toObject();
     return {
         success: true,

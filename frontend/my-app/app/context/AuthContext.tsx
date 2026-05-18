@@ -9,6 +9,13 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 
+import {
+  AUTH_TOKEN_KEY,
+  AUTH_USER_KEY,
+  clearAuthStorage,
+  getStoredToken,
+  isTokenExpired,
+} from "../lib/auth";
 import axiosInstance from "../lib/axiosInstance";
 
 type User = {
@@ -46,20 +53,17 @@ export const AuthProvider = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
-
-    const clearSession = () => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-    };
+    const storedToken = getStoredToken();
+    const storedUser = localStorage.getItem(AUTH_USER_KEY);
 
     if (storedUser === "undefined" || storedUser === "null") {
-      clearSession();
+      clearAuthStorage();
+    } else if (storedToken && isTokenExpired(storedToken)) {
+      clearAuthStorage();
     } else if (storedToken && !storedUser) {
-      clearSession();
+      clearAuthStorage();
     } else if (!storedToken && storedUser) {
-      clearSession();
+      clearAuthStorage();
     } else if (storedToken && storedUser) {
       try {
         const parsed: unknown = JSON.parse(storedUser);
@@ -72,10 +76,10 @@ export const AuthProvider = ({
           setToken(storedToken);
           setUser(parsed as User);
         } else {
-          clearSession();
+          clearAuthStorage();
         }
       } catch {
-        clearSession();
+        clearAuthStorage();
       }
     }
 
@@ -106,8 +110,8 @@ export const AuthProvider = ({
         const nextToken = response.data.token as string;
         const nextUser = response.data.data as User;
 
-        localStorage.setItem("token", nextToken);
-        localStorage.setItem("user", JSON.stringify(nextUser));
+        localStorage.setItem(AUTH_TOKEN_KEY, nextToken);
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(nextUser));
 
         setToken(nextToken);
         setUser(nextUser);
@@ -128,9 +132,7 @@ export const AuthProvider = ({
 
     setUser(null);
 
-    localStorage.removeItem("token");
-
-    localStorage.removeItem("user");
+    clearAuthStorage();
 
     router.replace("/login");
   };
