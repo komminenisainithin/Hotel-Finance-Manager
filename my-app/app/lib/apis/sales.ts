@@ -81,6 +81,79 @@ export const computeSalesMetrics = (records: SalesRecord[]): SalesMetrics => {
   return { totalMorning, totalEvening, grandTotal, avgPerDay };
 };
 
+export type CreateSalePayload = {
+  morning: number;
+  evening: number;
+  date: string;
+};
+
+export type CreateSaleResponse = {
+  success: boolean;
+  message: string;
+  status: number;
+  data?: SalesRecord;
+};
+
+export const createSale = async (
+  payload: CreateSalePayload,
+): Promise<CreateSaleResponse> => {
+  try {
+    const response =
+      await axiosInstance.post<CreateSaleResponse>("/sales", payload);
+    return response.data;
+  } catch (error) {
+    if (isAxiosError<ApiErrorBody>(error)) {
+      const message =
+        error.response?.data?.message ??
+        (error.response?.status === 401
+          ? "Please log in to create a sale"
+          : error.message);
+      throw new Error(message);
+    }
+    throw error;
+  }
+};
+
+export const updateSale = async (
+  salesId: number,
+  payload: CreateSalePayload,
+): Promise<CreateSaleResponse> => {
+  try {
+    const response = await axiosInstance.put<CreateSaleResponse>(
+      `/sales/${salesId}`,
+      payload,
+    );
+    return response.data;
+  } catch (error) {
+    if (isAxiosError<ApiErrorBody>(error)) {
+      const message =
+        error.response?.data?.message ??
+        (error.response?.status === 401
+          ? "Please log in to update a sale"
+          : error.message);
+      throw new Error(message);
+    }
+    throw error;
+  }
+};
+
+export const deleteSale = async (salesId: number): Promise<CreateSaleResponse> => {
+  try {
+    const response = await axiosInstance.delete<CreateSaleResponse>(`/sales/${salesId}`);
+    return response.data;
+  } catch (error) {
+    if (isAxiosError<ApiErrorBody>(error)) {
+      const message =
+        error.response?.data?.message ??
+        (error.response?.status === 401
+          ? "Please log in to delete a sale"
+          : error.message);
+      throw new Error(message);
+    }
+    throw error;
+  }
+};
+
 export const getSales = async (): Promise<SalesApiResponse> => {
   try {
     const response = await axiosInstance.get<SalesApiResponse>("/sales");

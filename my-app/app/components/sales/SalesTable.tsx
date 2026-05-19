@@ -8,7 +8,15 @@ import {
   type SalesRecord,
 } from "@/app/lib/apis/sales";
 
-export default function SalesTable({ data = [] }: { data?: SalesRecord[] }) {
+export default function SalesTable({
+  data = [],
+  onEdit,
+  onDelete,
+}: {
+  data?: SalesRecord[];
+  onEdit?: (sale: SalesRecord) => void;
+  onDelete?: (sale: SalesRecord) => void;
+}) {
   const rows = sortSalesByDate(data);
 
   const fmtDate = (s: string) =>
@@ -122,9 +130,7 @@ export default function SalesTable({ data = [] }: { data?: SalesRecord[] }) {
                       <button
                         type="button"
                         className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
-                        onClick={() =>
-                          alert(`Edit sale #${row.salesId} — connect to API`)
-                        }
+                        onClick={() => onEdit?.(row)}
                       >
                         <Pencil className="h-3.5 w-3.5" />
                         Edit
@@ -133,9 +139,7 @@ export default function SalesTable({ data = [] }: { data?: SalesRecord[] }) {
                       <button
                         type="button"
                         className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-medium text-red-700 transition hover:bg-red-50"
-                        onClick={() =>
-                          alert(`Delete sale #${row.salesId} — connect to API`)
-                        }
+                        onClick={() => onDelete?.(row)}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                         Delete

@@ -7,7 +7,7 @@ const router = express.Router();
 router.use(authMiddleware);
 
 router.post("/", createPurchaseController);
-router.get("/all", getAllPurchasesController);
+router.get("/", getAllPurchasesController);
 router.get("/:id", getPurchaseByIdController);
 router.put("/:id", updatePurchaseController);
 router.delete("/:id", deletePurchaseController);
