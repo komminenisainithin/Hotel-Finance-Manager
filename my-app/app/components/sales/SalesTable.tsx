@@ -19,73 +19,125 @@ export default function SalesTable({ data = [] }: { data?: SalesRecord[] }) {
     });
 
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-      <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3.5">
-        <span className="text-sm font-medium text-gray-900">Sales records</span>
-        <span className="text-xs text-gray-500">{rows.length} records</span>
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+        <div>
+          <h2 className="text-base font-semibold text-gray-900">
+            Sales Records
+          </h2>
+          <p className="text-sm text-gray-500">
+            Manage and track daily sales
+          </p>
+        </div>
+
+        <div className="rounded-full bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700">
+          {rows.length} Records
+        </div>
       </div>
+
+      {/* Empty State */}
       {rows.length === 0 ? (
-        <p className="px-4 py-8 text-center text-sm text-gray-500">
-          No sales records yet.
-        </p>
+        <div className="flex flex-col items-center justify-center px-6 py-14 text-center">
+          <p className="text-sm font-medium text-gray-700">
+            No sales records found
+          </p>
+          <p className="mt-1 text-sm text-gray-500">
+            Sales entries will appear here once added.
+          </p>
+        </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[520px] border-collapse text-sm">
+          <table className="w-full min-w-[950px] border-collapse">
             <thead>
-              <tr className="bg-gray-50 text-left text-xs font-medium text-gray-500">
-                <th className="w-10 px-3.5 py-2.5">#</th>
-                <th className="w-28 px-3.5 py-2.5">Date</th>
-                <th className="w-24 px-3.5 py-2.5">Morning</th>
-                <th className="w-24 px-3.5 py-2.5">Evening</th>
-                <th className="w-24 px-3.5 py-2.5">Total</th>
-                <th className="px-3.5 py-2.5">Actions</th>
+              <tr className="border-b border-gray-200 bg-gray-50/80">
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  #
+                </th>
+
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Date
+                </th>
+
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Morning
+                </th>
+
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Evening
+                </th>
+
+                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Total
+                </th>
+
+                <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Actions
+                </th>
               </tr>
             </thead>
+
             <tbody>
-              {rows.map((row) => (
+              {rows.map((row, index) => (
                 <tr
                   key={row._id}
-                  className="border-t border-gray-100 hover:bg-gray-50"
+                  className="border-b border-gray-100 transition-colors hover:bg-gray-50"
                 >
-                  <td className="px-3.5 py-2.5 text-gray-500">{row.salesId}</td>
-                  <td className="px-3.5 py-2.5">
-                    <span className="font-medium text-[#185FA5] underline decoration-[#185FA5]/40">
+                  {/* Index */}
+                  <td className="px-6 py-4 text-sm font-medium text-gray-500">
+                    {index + 1}
+                  </td>
+
+                  {/* Date */}
+                  <td className="px-6 py-4">
+                    <span className="font-medium text-[#185FA5]">
                       {fmtDate(row.date)}
                     </span>
                   </td>
-                  <td className="px-3.5 py-2.5">
-                    <span className="inline-block rounded px-2 py-0.5 text-xs font-medium bg-[#E6F1FB] text-[#0C447C]">
+
+                  {/* Morning */}
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
                       {formatInr(row.morning)}
                     </span>
                   </td>
-                  <td className="px-3.5 py-2.5">
-                    <span className="inline-block rounded px-2 py-0.5 text-xs font-medium bg-[#FAEEDA] text-[#633806]">
+
+                  {/* Evening */}
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-700">
                       {formatInr(row.evening)}
                     </span>
                   </td>
-                  <td className="px-3.5 py-2.5 font-medium">
-                    {formatInr(row.total)}
+
+                  {/* Total */}
+                  <td className="px-6 py-4">
+                    <span className="text-sm font-semibold text-gray-900">
+                      {formatInr(row.total)}
+                    </span>
                   </td>
-                  <td className="px-3.5 py-2.5">
-                    <div className="flex gap-2">
+
+                  {/* Actions */}
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-end gap-3">
                       <button
                         type="button"
-                        className="inline-flex items-center gap-1 rounded border border-gray-200 px-2.5 py-1 text-xs text-gray-600 hover:bg-gray-50"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
                         onClick={() =>
                           alert(`Edit sale #${row.salesId} — connect to API`)
                         }
                       >
-                        <Pencil className="h-3 w-3" />
+                        <Pencil className="h-3.5 w-3.5" />
                         Edit
                       </button>
+
                       <button
                         type="button"
-                        className="inline-flex items-center gap-1 rounded border border-red-200 px-2.5 py-1 text-xs text-red-700 hover:bg-red-50"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-medium text-red-700 transition hover:bg-red-50"
                         onClick={() =>
                           alert(`Delete sale #${row.salesId} — connect to API`)
                         }
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-3.5 w-3.5" />
                         Delete
                       </button>
                     </div>

@@ -38,7 +38,7 @@ export default function SalesPage() {
   }, [token, authLoading]);
 
   return (
-    <div>
+    <div className="w-full">
       <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
         <h1 className="text-lg font-medium text-gray-900">Sales dashboard</h1>
         <button
