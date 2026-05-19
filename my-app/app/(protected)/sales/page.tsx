@@ -73,6 +73,7 @@ export default function SalesPage() {
       <div className="flex flex-col gap-5 p-4">
         {loading && <p className="text-gray-500">Loading sales…</p>}
         {error && <p className="text-red-600">{error}</p>}
+        {deleteError && <p className="text-red-600">{deleteError}</p>}
         {!loading && !error && (
           <>
             <SalesMetrics data={data} />
@@ -84,6 +85,7 @@ export default function SalesPage() {
             <SalesTable
                 data={data}
                 onEdit={(sale) => setEditSale(sale)}
+                onDelete={handleDelete}
               />
           </>
         )}
