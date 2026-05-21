@@ -7,7 +7,7 @@ const router = express.Router();
 router.use(authMiddleware);
 
 router.post("/", createExpenseController);
-router.get("/all", getAllExpensesController);
+router.get("/", getAllExpensesController);
 router.get("/:id", getExpenseByIdController);
 router.put("/:id", updateExpenseController);
 router.delete("/:id", deleteExpenseController);
