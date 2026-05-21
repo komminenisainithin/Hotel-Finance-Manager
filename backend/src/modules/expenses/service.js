@@ -1,3 +1,5 @@
+import Expense from "./model.js";
+
 export const createExpenseService = async (userId, amount, purpose, date) => {
     try {
         const expense = await Expense.create({userId, amount, purpose, date});
