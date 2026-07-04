@@ -1,4 +1,4 @@
-import { registerUser, loginUser, getUser, updatePassword, userUpdate } from "./service.js";
+import { registerUser, loginUser, getUser, updatePassword, userUpdate, logoutUser } from "./service.js";
 
 export const registerController = async (req, res) => {
     try {
@@ -43,6 +43,15 @@ export const userUpdateController = async (req, res) => {
     try {
         const { name, email, mobile } = req.body;
         const result = await userUpdate(req.user.id, { name, email, mobile });
+        res.status(result.status).json(result);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const logoutController = async (req, res) => {
+    try {
+        const result = await logoutUser();
         res.status(result.status).json(result);
     } catch (error) {
         res.status(500).json({ message: error.message });

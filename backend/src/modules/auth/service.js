@@ -156,3 +156,11 @@ export const userUpdate = async (userId, { name, email, mobile }) => {
         throw error;
     }
 };
+
+export const logoutUser = async () => {
+    return {
+        success: true,
+        message: "User logged out successfully",
+        status: 200
+    };
+};
