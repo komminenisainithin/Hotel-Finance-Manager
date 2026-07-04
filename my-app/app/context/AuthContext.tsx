@@ -16,6 +16,7 @@ import {
   getStoredToken,
   isTokenExpired,
 } from "../lib/auth";
+import { logoutUser } from "../lib/apis/auth";
 import axiosInstance from "../lib/axiosInstance";
 
 type User = {
@@ -27,7 +28,8 @@ type User = {
 type AuthContextType = {
   user: User | null;
   token: string | null;
-  logout: () => void;
+  logout: () => Promise<void>;
+  syncUser: (user: User) => void;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
 };
@@ -35,7 +37,8 @@ type AuthContextType = {
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   token: null,
-  logout: () => {},
+  logout: async () => {},
+  syncUser: () => {},
   loading: true,
   login: async () => {},
 });
@@ -127,14 +130,22 @@ export const AuthProvider = ({
     }
   };
 
-  const logout = () => {
-    setToken(null);
+  const syncUser = (nextUser: User) => {
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(nextUser));
+    setUser(nextUser);
+  };
 
-    setUser(null);
-
-    clearAuthStorage();
-
-    router.replace("/login");
+  const logout = async () => {
+    try {
+      await logoutUser();
+    } catch (error) {
+      console.log("Logout Error:", error);
+    } finally {
+      setToken(null);
+      setUser(null);
+      clearAuthStorage();
+      router.replace("/login");
+    }
   };
 
   return (
@@ -143,6 +154,7 @@ export const AuthProvider = ({
         user,
         token,
         logout,
+        syncUser,
         loading,
         login,
       }}
