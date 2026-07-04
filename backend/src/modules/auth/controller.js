@@ -1,4 +1,4 @@
-import { registerUser, loginUser, getUser, updatePassword } from "./service.js";
+import { registerUser, loginUser, getUser, updatePassword, userUpdate } from "./service.js";
 
 export const registerController = async (req, res) => {
     try {
@@ -22,21 +22,27 @@ export const loginController = async (req, res) => {
 
 export const getUserController = async (req, res) => {
     try {
-        const token = req.headers.authorization.split(" ")[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await getUser(decoded.userId);
-        res.status(200).json(user);
+        const result = await getUser(req.user.id);
+        res.status(result.status).json(result);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
 export const updatePasswordController = async (req, res) => {
-    try{
+    try {
         const { oldPassword, newPassword } = req.body;
-        const token = req.headers.authorization.split(" ")[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const result = await updatePassword(decoded.userId, oldPassword, newPassword);
+        const result = await updatePassword(req.user.id, oldPassword, newPassword);
+        res.status(result.status).json(result);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const userUpdateController = async (req, res) => {
+    try {
+        const { name, email, mobile } = req.body;
+        const result = await userUpdate(req.user.id, { name, email, mobile });
         res.status(result.status).json(result);
     } catch (error) {
         res.status(500).json({ message: error.message });

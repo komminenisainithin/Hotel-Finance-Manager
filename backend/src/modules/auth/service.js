@@ -65,11 +65,12 @@ export const getUser = async (userId) => {
                     status: 404
                 };
             }
+            const { password: _, ...userData } = user.toObject();
             return {
                 success: true,
                 message: "User found successfully",
                 status: 200,
-                data: user
+                data: userData
             };
         } catch (error) {
             return {
@@ -112,5 +113,46 @@ export const updatePassword = async (userId, oldPassword, newPassword) => {
             message: "Invalid old password",
             status: 500
         };
+    }
+};
+export const userUpdate = async (userId, { name, email, mobile }) => {
+    try {
+        const updateData = {};
+        if (name !== undefined) updateData.name = name;
+        if (email !== undefined) updateData.email = email;
+        if (mobile !== undefined) updateData.mobile = mobile;
+
+        if (Object.keys(updateData).length === 0) {
+            return {
+                success: false,
+                message: "No valid fields to update",
+                status: 400
+            };
+        }
+
+        const user = await User.findByIdAndUpdate(userId, updateData, { new: true, runValidators: true });
+        if (!user) {
+            return {
+                success: false,
+                message: "User not found",
+                status: 404
+            };
+        }
+        const { password: _, ...userData } = user.toObject();
+        return {
+            success: true,
+            message: "User updated successfully",
+            status: 200,
+            data: userData
+        };
+    } catch (error) {
+        if (error.code === 11000) {
+            return {
+                success: false,
+                message: "Email already exists",
+                status: 400
+            };
+        }
+        throw error;
     }
 };
