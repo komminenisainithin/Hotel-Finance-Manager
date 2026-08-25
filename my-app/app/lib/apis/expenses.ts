@@ -11,14 +11,32 @@ export type ExpenseRecord = {
   date: string;
   createdAt: string;
   updatedAt: string;
+  
   __v: number;
+};
+
+export type ExpenseStats = {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 };
 
 export type ExpensesApiResponse = {
   success: boolean;
   message: string;
   status: number;
-  data: ExpenseRecord[];
+  data: {
+    expenses: ExpenseRecord[];
+    stats: ExpenseStats;
+  };
+};
+
+export type GetExpensesParams = {
+  start_date?: string;
+  end_date?: string;
+  page?: number;
+  per_page?: number;
 };
 
 export type ExpenseMutationResponse = {
@@ -132,9 +150,21 @@ export const getExpenseById = async (
   }
 };
 
-export const getExpenses = async (): Promise<ExpensesApiResponse> => {
+export const getExpenses = async (
+  options: GetExpensesParams = {},
+): Promise<ExpensesApiResponse> => {
+  const { start_date, end_date, page = 1, per_page = 50 } = options;
+  const params: Record<string, string | number> = {
+    page,
+    per_page,
+  };
+  if (start_date) params.start_date = start_date;
+  if (end_date) params.end_date = end_date;
+
   try {
-    const response = await axiosInstance.get<ExpensesApiResponse>("/expenses");
+    const response = await axiosInstance.get<ExpensesApiResponse>("/expenses", {
+      params,
+    });
     return response.data;
   } catch (error) {
     if (isAxiosError<ApiErrorBody>(error)) {

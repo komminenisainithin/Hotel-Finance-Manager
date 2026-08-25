@@ -10,14 +10,22 @@ import {
 
 export default function ExpensesTable({
   data = [],
+  total,
+  page = 1,
+  perPage = 50,
   onEdit,
   onDelete,
 }: {
   data?: ExpenseRecord[];
+  total?: number;
+  page?: number;
+  perPage?: number;
   onEdit?: (expense: ExpenseRecord) => void;
   onDelete?: (expense: ExpenseRecord) => void;
 }) {
   const rows = sortExpensesByDate(data);
+  const recordCount = total ?? rows.length;
+  const startIndex = (page - 1) * perPage;
 
   const fmtDate = (s: string) =>
     new Date(s).toLocaleDateString("en-IN", {
@@ -37,7 +45,7 @@ export default function ExpensesTable({
         </div>
 
         <div className="rounded-full bg-red-50 px-4 py-1.5 text-sm font-medium text-red-700">
-          {rows.length} Records
+          {recordCount} Record{recordCount === 1 ? "" : "s"}
         </div>
       </div>
 
@@ -80,7 +88,7 @@ export default function ExpensesTable({
                   className="border-b border-gray-100 transition-colors hover:bg-gray-50"
                 >
                   <td className="px-6 py-4 text-sm font-medium text-gray-500">
-                    {index + 1}
+                    {startIndex + index + 1}
                   </td>
 
                   <td className="px-6 py-4">
