@@ -76,9 +76,16 @@ export const createSalesService = async (userId, payload) => {
     }
 };
 
-export const getSalesService = async (userId) => {
+export const getSalesService = async (page, per_page, start_date, end_date) => {
     try{
-        const sales = await Sales.find();
+        const query = {};
+        if (start_date) {
+            query.date = { $gte: new Date(start_date) };
+        }
+        if (end_date) {
+            query.date = { $lte: new Date(end_date) };
+        }
+        const sales = await Sales.find(query).skip((page - 1) * per_page).limit(per_page).sort({ date: -1 }).lean();
         return {
             success: true,
             message: "Sales fetched successfully",

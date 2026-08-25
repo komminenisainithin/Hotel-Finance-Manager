@@ -20,9 +20,16 @@ export const createPurchaseService = async (userId, amount, description, date) =
     }
 };
 
-export const getAllPurchasesService = async () => {
+export const getAllPurchasesService = async (page, per_page, start_date, end_date) => {
     try {
-        const purchases = await Purchase.find();
+        const query = {};
+        if (start_date) {
+            query.date = { $gte: new Date(start_date) };
+        }
+        if (end_date) {
+            query.date = { $lte: new Date(end_date) };
+        }
+        const purchases = await Purchase.find(query).skip((page - 1) * per_page).limit(per_page).sort({ date: -1 }).lean();
         return {
             success: true,
             message: "Purchases fetched successfully",

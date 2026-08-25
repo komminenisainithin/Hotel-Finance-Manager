@@ -11,8 +11,9 @@ export const createPurchaseController = async (req, res) => {
 };
 
 export const getAllPurchasesController = async (req, res) => {
+    const { page = 1, per_page = 50, start_date, end_date } = req.query;
     try {
-        const result = await getAllPurchasesService();
+        const result = await getAllPurchasesService(page, per_page, start_date, end_date);
         res.status(result.status).json(result);
     } catch (error) {
         res.status(500).json({ message: error.message });

@@ -20,6 +20,9 @@ const purchaseSchema = new mongoose.Schema({
     },
 });
 
+
+
 const Purchase = mongoose.model("Purchase", purchaseSchema);
 
+purchaseSchema.index({ date: 1 });
 export default Purchase;
