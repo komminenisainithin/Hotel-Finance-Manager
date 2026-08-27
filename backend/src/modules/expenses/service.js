@@ -1,4 +1,5 @@
 import Expense from "./model.js";
+import { getDateRange } from "../../utils/dateRange.js";
 
 export const createExpenseService = async (userId, amount, purpose, date) => {
     try {
@@ -27,44 +28,40 @@ export const createExpenseService = async (userId, amount, purpose, date) => {
     }
 };
 
-const startOfDay = (dateStr) => {
-    const date = new Date(dateStr);
-    date.setUTCHours(0, 0, 0, 0);
-    return date;
-};
+export const getAllExpensesService = async (page, limit, filter, startDate, endDate) => {
+    const pageNum = Math.max(1, Number(page) || 1);
+    const limitNum = Math.max(1, Number(limit) || 50);
 
-const startOfNextDay = (dateStr) => {
-    const date = startOfDay(dateStr);
-    date.setUTCDate(date.getUTCDate() + 1);
-    return date;
-};
-
-export const getAllExpensesService = async (page, limit, startDate, endDate) => {
-    const query = {};
-    if (startDate || endDate) {
-        query.date = {};
-        if (startDate) {
-            query.date.$gte = startOfDay(startDate);
-        }
-        if (endDate) {
-            // Inclusive end date: match through the end of that calendar day
-            query.date.$lt = startOfNextDay(endDate);
-        }
+    const dateRange = getDateRange(filter, startDate, endDate);
+    if (filter === "custom" && dateRange === null) {
+        return {
+            success: false,
+            message: "Custom filter requires valid startDate and endDate query params (YYYY-MM-DD)",
+            status: 400,
+        };
     }
+
+    const query = dateRange ? { date: dateRange } : {};
+
     try {
-        const expenses = await Expense.find(query).skip((page - 1) * limit).limit(limit).sort({ date: -1 }).lean();
+        const expenses = await Expense.find(query)
+            .skip((pageNum - 1) * limitNum)
+            .limit(limitNum)
+            .sort({ date: -1 })
+            .lean();
         const total = await Expense.countDocuments(query);
         return {
             success: true,
             message: "Expenses fetched successfully",
             status: 200,
             data: {
+                filter: filter || "all",
                 expenses,
                 stats: {
-                    total: total,
-                    page: page,
-                    limit: limit,
-                    totalPages: Math.ceil(total / limit)
+                    total,
+                    page: pageNum,
+                    limit: limitNum,
+                    totalPages: Math.ceil(total / limitNum) || 0,
                 }
             }
         };

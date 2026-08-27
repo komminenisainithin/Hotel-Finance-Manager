@@ -21,9 +21,9 @@ export const createSalesController = async (req, res) => {
 // };
 
 export const getSalesController = async (req, res) => {
-    const { page = 1, per_page = 50, start_date, end_date } = req.query;
+    const { page = 1, per_page = 50, filter, startDate, endDate } = req.query;
     try {
-        const result = await getSalesService(page, per_page, start_date, end_date);
+        const result = await getSalesService(page, per_page, filter, startDate, endDate);
         res.status(result.status).json(result);
     } catch (error) {
         res.status(500).json({ message: error.message });

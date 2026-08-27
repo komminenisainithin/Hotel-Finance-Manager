@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Sales from "./model.js";
+import { getDateRange } from "../../utils/dateRange.js";
 
 const toShiftNumber = (value) => {
     if (value === undefined || value === null || value === "") return 0;
@@ -76,42 +77,21 @@ export const createSalesService = async (userId, payload) => {
     }
 };
 
-const startOfDay = (dateStr) => {
-    const date = new Date(dateStr);
-    date.setUTCHours(0, 0, 0, 0);
-    return date;
-};
-
-const startOfNextDay = (dateStr) => {
-    const date = startOfDay(dateStr);
-    date.setUTCDate(date.getUTCDate() + 1);
-    return date;
-};
-
-export const getSalesService = async (page, per_page, start_date, end_date) => {
+export const getSalesService = async (page, per_page, filter, startDate, endDate) => {
     try {
         const pageNum = Math.max(1, Number(page) || 1);
         const perPageNum = Math.max(1, Number(per_page) || 50);
 
-        const query = {};
-        if (start_date || end_date) {
-            query.date = {};
-            if (start_date) {
-                const start = startOfDay(start_date);
-                if (Number.isNaN(start.getTime())) {
-                    return { success: false, message: "Invalid start_date", status: 400 };
-                }
-                query.date.$gte = start;
-            }
-            if (end_date) {
-                const end = startOfNextDay(end_date);
-                if (Number.isNaN(end.getTime())) {
-                    return { success: false, message: "Invalid end_date", status: 400 };
-                }
-                // Inclusive end date: match through the end of that calendar day
-                query.date.$lt = end;
-            }
+        const dateRange = getDateRange(filter, startDate, endDate);
+        if (filter === "custom" && dateRange === null) {
+            return {
+                success: false,
+                message: "Custom filter requires valid startDate and endDate query params (YYYY-MM-DD)",
+                status: 400,
+            };
         }
+
+        const query = dateRange ? { date: dateRange } : {};
 
         const sales = await Sales.find(query)
             .skip((pageNum - 1) * perPageNum)
@@ -124,6 +104,7 @@ export const getSalesService = async (page, per_page, start_date, end_date) => {
             message: "Sales fetched successfully",
             status: 200,
             data: {
+                filter: filter || "all",
                 sales,
                 total,
                 page: pageNum,
