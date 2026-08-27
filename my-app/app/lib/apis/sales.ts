@@ -15,11 +15,27 @@ export type SalesRecord = {
   __v: number;
 };
 
+export type SalesListData = {
+  sales: SalesRecord[];
+  total: number;
+  page: number | string;
+  per_page: number | string;
+  total_pages: number;
+  total_items: number;
+};
+
 export type SalesApiResponse = {
   success: boolean;
   message: string;
   status: number;
-  data: SalesRecord[];
+  data: SalesListData;
+};
+
+export type GetSalesParams = {
+  start_date?: string;
+  end_date?: string;
+  page?: number;
+  per_page?: number;
 };
 
 export const MORNING_COLOR = "#378ADD";
@@ -154,9 +170,21 @@ export const deleteSale = async (salesId: number): Promise<CreateSaleResponse> =
   }
 };
 
-export const getSales = async (): Promise<SalesApiResponse> => {
+export const getSales = async (
+  options: GetSalesParams = {},
+): Promise<SalesApiResponse> => {
+  const { start_date, end_date, page = 1, per_page = 50 } = options;
+  const params: Record<string, string | number> = {
+    page,
+    per_page,
+  };
+  if (start_date) params.start_date = start_date;
+  if (end_date) params.end_date = end_date;
+
   try {
-    const response = await axiosInstance.get<SalesApiResponse>("/sales");
+    const response = await axiosInstance.get<SalesApiResponse>("/sales", {
+      params,
+    });
     return response.data;
   } catch (error) {
     if (isAxiosError<ApiErrorBody>(error)) {

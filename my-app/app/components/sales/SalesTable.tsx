@@ -10,14 +10,22 @@ import {
 
 export default function SalesTable({
   data = [],
+  total,
+  page = 1,
+  perPage = 50,
   onEdit,
   onDelete,
 }: {
   data?: SalesRecord[];
+  total?: number;
+  page?: number;
+  perPage?: number;
   onEdit?: (sale: SalesRecord) => void;
   onDelete?: (sale: SalesRecord) => void;
 }) {
   const rows = sortSalesByDate(data);
+  const recordCount = total ?? rows.length;
+  const startIndex = (page - 1) * perPage;
 
   const fmtDate = (s: string) =>
     new Date(s).toLocaleDateString("en-IN", {
@@ -40,7 +48,7 @@ export default function SalesTable({
         </div>
 
         <div className="rounded-full bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700">
-          {rows.length} Records
+          {recordCount} Record{recordCount === 1 ? "" : "s"}
         </div>
       </div>
 
@@ -93,7 +101,7 @@ export default function SalesTable({
                 >
                   {/* Index */}
                   <td className="px-6 py-4 text-sm font-medium text-gray-500">
-                    {index + 1}
+                    {startIndex + index + 1}
                   </td>
 
                   {/* Date */}
