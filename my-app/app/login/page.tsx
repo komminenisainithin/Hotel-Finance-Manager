@@ -66,7 +66,7 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="rounded-xl border border-[#1F3A5F]/15 px-3.5 py-2.5 text-sm text-[#132745] outline-none transition focus:border-[#E96B2E] focus:ring-2 focus:ring-[#E96B2E]/20"
+            className="rounded-xl border border-[#1F3A5F]/15 bg-white px-3.5 py-2.5 text-sm text-[#132745] outline-none transition focus:border-[#E96B2E] focus:ring-2 focus:ring-[#E96B2E]/20"
           />
 
           <div className="relative">
@@ -76,7 +76,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full rounded-xl border border-[#1F3A5F]/15 px-3.5 py-2.5 pr-10 text-sm text-[#132745] outline-none transition focus:border-[#E96B2E] focus:ring-2 focus:ring-[#E96B2E]/20"
+              className="w-full rounded-xl border border-[#1F3A5F]/15 bg-white px-3.5 py-2.5 pr-10 text-sm text-[#132745] outline-none transition focus:border-[#E96B2E] focus:ring-2 focus:ring-[#E96B2E]/20"
             />
 
             <button

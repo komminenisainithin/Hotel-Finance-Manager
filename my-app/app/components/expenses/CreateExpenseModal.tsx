@@ -88,7 +88,7 @@ export default function CreateExpenseModal({
               required
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5]"
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-[#132745] outline-none focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5]"
               placeholder="e.g. 1800"
             />
           </div>
@@ -100,7 +100,7 @@ export default function CreateExpenseModal({
               required
               value={purpose}
               onChange={(e) => setPurpose(e.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5]"
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-[#132745] outline-none focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5]"
               placeholder="e.g. current bill"
             />
           </div>
@@ -112,7 +112,7 @@ export default function CreateExpenseModal({
               required
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5]"
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-[#132745] outline-none focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5]"
             />
           </div>
 

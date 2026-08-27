@@ -92,7 +92,7 @@ export default function CreatePurchaseModal({
               required
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5]"
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-[#132745] outline-none focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5]"
               placeholder="e.g. 20000"
             />
           </div>
@@ -106,7 +106,7 @@ export default function CreatePurchaseModal({
               required
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5]"
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-[#132745] outline-none focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5]"
               placeholder="e.g. Supplies"
             />
           </div>
@@ -118,7 +118,7 @@ export default function CreatePurchaseModal({
               required
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5]"
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-[#132745] outline-none focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5]"
             />
           </div>
 
