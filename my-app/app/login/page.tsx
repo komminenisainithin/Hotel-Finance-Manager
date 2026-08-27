@@ -55,7 +55,7 @@ export default function LoginPage() {
             className="h-14 w-auto"
           />
           <p className="mt-3 text-sm text-[#6B7C93]">
-            Sign in to manage sales, purchases, and expenses
+            Sign in to your Tiffin Books account
           </p>
         </div>
 
