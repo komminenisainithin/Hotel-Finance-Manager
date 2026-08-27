@@ -33,8 +33,9 @@ export type ExpensesApiResponse = {
 };
 
 export type GetExpensesParams = {
-  start_date?: string;
-  end_date?: string;
+  filter?: "all" | "today" | "weekly" | "monthly" | "yearly" | "custom";
+  startDate?: string;
+  endDate?: string;
   page?: number;
   per_page?: number;
 };
@@ -153,13 +154,16 @@ export const getExpenseById = async (
 export const getExpenses = async (
   options: GetExpensesParams = {},
 ): Promise<ExpensesApiResponse> => {
-  const { start_date, end_date, page = 1, per_page = 50 } = options;
+  const { filter, startDate, endDate, page = 1, per_page = 50 } = options;
   const params: Record<string, string | number> = {
     page,
     per_page,
   };
-  if (start_date) params.start_date = start_date;
-  if (end_date) params.end_date = end_date;
+  if (filter && filter !== "all") params.filter = filter;
+  if (filter === "custom") {
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+  }
 
   try {
     const response = await axiosInstance.get<ExpensesApiResponse>("/expenses", {

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, PlusIcon } from "lucide-react";
 
 import DateRangeFilter, {
-  resolvePresetDates,
   type DateRangeValue,
 } from "@/app/components/DateRangeFilter";
 import CreateSaleModal from "@/app/components/sales/CreateSaleModal";
@@ -48,18 +47,15 @@ export default function SalesPage() {
     if (!silent) setLoading(true);
     setError(null);
 
-    const range = resolvePresetDates(
-      dateFilter.preset,
-      dateFilter.startDate,
-      dateFilter.endDate,
-    );
-    const hasDateFilter = Boolean(range.startDate && range.endDate);
-
     getSales({
       page,
       per_page: PER_PAGE,
-      ...(hasDateFilter
-        ? { start_date: range.startDate, end_date: range.endDate }
+      filter: dateFilter.preset,
+      ...(dateFilter.preset === "custom"
+        ? {
+            startDate: dateFilter.startDate,
+            endDate: dateFilter.endDate,
+          }
         : {}),
     })
       .then((res) => {
