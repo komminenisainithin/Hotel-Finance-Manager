@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect } from "react";
 
-import FilterBar from "@/app/components/dashboard/FilterBar";
+import DateRangeFilter from "@/app/components/DateRangeFilter";
 import { useDashboard } from "@/app/components/dashboard/DashboardContext";
 import KpiCards from "@/app/components/dashboard/KpiCards";
 import OverviewChart from "@/app/components/dashboard/OverviewChart";
@@ -110,24 +110,34 @@ export default function DashboardPage() {
       </div>
 
       <header className="border-b border-gray-200 bg-white px-4 py-4 lg:px-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="min-w-0">
-            <h1 className="text-xl font-semibold tracking-tight text-[#132745]">
-              Dashboard
-            </h1>
-            <p className="mt-0.5 text-sm text-[#6B7C93]">
-              Overview for <span className="font-medium text-[#1F3A5F]">{rangeLabel}</span>
-            </p>
-          </div>
-
-          <FilterBar
-            filter={filter}
-            startDate={startDate}
-            endDate={endDate}
-            onChange={setRange}
-          />
+        <div className="min-w-0">
+          <h1 className="text-xl font-semibold tracking-tight text-[#132745]">
+            Dashboard
+          </h1>
+          <p className="mt-0.5 text-sm text-[#6B7C93]">
+            Overview for{" "}
+            <span className="font-medium text-[#1F3A5F]">{rangeLabel}</span>
+          </p>
         </div>
       </header>
+
+      <div className="px-4 pt-4 lg:px-6">
+        <DateRangeFilter
+          value={{
+            preset: filter,
+            startDate,
+            endDate,
+          }}
+          onChange={(next) =>
+            setRange({
+              filter: next.preset,
+              startDate: next.startDate,
+              endDate: next.endDate,
+            })
+          }
+          emptyLabel="Showing all time"
+        />
+      </div>
 
       <div className="flex flex-col gap-5 p-4 lg:p-6">
         {error && (
