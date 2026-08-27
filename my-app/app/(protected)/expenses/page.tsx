@@ -8,6 +8,7 @@ import DateRangeFilter, {
 } from "@/app/components/DateRangeFilter";
 import CreateExpenseModal from "@/app/components/expenses/CreateExpenseModal";
 import ExpensesTable from "@/app/components/expenses/ExpensesTable";
+import { ExpensesPageSkeleton } from "@/app/components/PageSkeletons";
 import { useAuth } from "@/app/context/AuthContext";
 import {
   deleteExpense,
@@ -148,18 +149,21 @@ export default function ExpensesPage() {
       </div>
 
       <div className="flex flex-col gap-5 p-4 lg:p-6">
-        {loading && <p className="text-gray-500">Loading expenses…</p>}
         {error && <p className="text-red-600">{error}</p>}
         {deleteError && <p className="text-red-600">{deleteError}</p>}
-        {!loading && !error && (
-          <ExpensesTable
-            data={data}
-            total={stats.total}
-            page={stats.page}
-            perPage={stats.limit}
-            onEdit={(expense) => setEditExpense(expense)}
-            onDelete={handleDelete}
-          />
+        {loading ? (
+          <ExpensesPageSkeleton />
+        ) : (
+          !error && (
+            <ExpensesTable
+              data={data}
+              total={stats.total}
+              page={stats.page}
+              perPage={stats.limit}
+              onEdit={(expense) => setEditExpense(expense)}
+              onDelete={handleDelete}
+            />
+          )
         )}
 
         {!loading && !error && totalPages > 1 && (

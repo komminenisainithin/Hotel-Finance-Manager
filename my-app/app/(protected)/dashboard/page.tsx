@@ -7,6 +7,7 @@ import DateRangeFilter from "@/app/components/DateRangeFilter";
 import { useDashboard } from "@/app/components/dashboard/DashboardContext";
 import KpiCards from "@/app/components/dashboard/KpiCards";
 import OverviewChart from "@/app/components/dashboard/OverviewChart";
+import { DashboardPageSkeleton } from "@/app/components/PageSkeletons";
 import { useAuth } from "@/app/context/AuthContext";
 import {
   getDashboard,
@@ -21,25 +22,6 @@ const FILTER_LABELS: Record<DashboardFilter, string> = {
   yearly: "This year",
   custom: "Custom range",
 };
-
-function KpiSkeleton() {
-  return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
-      {Array.from({ length: 4 }).map((_, idx) => (
-        <div
-          key={idx}
-          className="h-[112px] animate-pulse rounded-2xl border border-gray-200/80 bg-white"
-        />
-      ))}
-    </div>
-  );
-}
-
-function ChartSkeleton() {
-  return (
-    <div className="h-[320px] animate-pulse rounded-2xl border border-gray-200/80 bg-white" />
-  );
-}
 
 export default function DashboardPage() {
   const { token, loading: authLoading } = useAuth();
@@ -153,10 +135,7 @@ export default function DashboardPage() {
         )}
 
         {loading || !data ? (
-          <>
-            <KpiSkeleton />
-            <ChartSkeleton />
-          </>
+          <DashboardPageSkeleton />
         ) : (
           <>
             <KpiCards totals={data.totals} counts={data.counts} />

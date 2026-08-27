@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, PlusIcon } from "lucide-react";
 import DateRangeFilter, {
   type DateRangeValue,
 } from "@/app/components/DateRangeFilter";
+import { SalesPageSkeleton } from "@/app/components/PageSkeletons";
 import CreateSaleModal from "@/app/components/sales/CreateSaleModal";
 import SalesEveningChart from "@/app/components/sales/SalesEveningChart";
 import SalesMetrics from "@/app/components/sales/SalesMetrics";
@@ -125,25 +126,28 @@ export default function SalesPage() {
       </div>
 
       <div className="flex flex-col gap-5 p-4 lg:p-6">
-        {loading && <p className="text-gray-500">Loading sales…</p>}
         {error && <p className="text-red-600">{error}</p>}
         {deleteError && <p className="text-red-600">{deleteError}</p>}
-        {!loading && !error && (
-          <>
-            <SalesMetrics data={data} />
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <SalesMorningChart data={data} />
-              <SalesEveningChart data={data} />
-            </div>
-            <SalesTable
-              data={data}
-              total={total}
-              page={page}
-              perPage={PER_PAGE}
-              onEdit={(sale) => setEditSale(sale)}
-              onDelete={handleDelete}
-            />
-          </>
+        {loading ? (
+          <SalesPageSkeleton />
+        ) : (
+          !error && (
+            <>
+              <SalesMetrics data={data} />
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <SalesMorningChart data={data} />
+                <SalesEveningChart data={data} />
+              </div>
+              <SalesTable
+                data={data}
+                total={total}
+                page={page}
+                perPage={PER_PAGE}
+                onEdit={(sale) => setEditSale(sale)}
+                onDelete={handleDelete}
+              />
+            </>
+          )
         )}
 
         {!loading && !error && pages > 1 && (

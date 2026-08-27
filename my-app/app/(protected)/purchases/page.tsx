@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { PlusIcon } from "lucide-react";
 
+import { PurchasesPageSkeleton } from "@/app/components/PageSkeletons";
 import CreatePurchaseModal from "@/app/components/purchases/CreatePurchaseModal";
 import PurchasesTable from "@/app/components/purchases/PurchasesTable";
 import { useAuth } from "@/app/context/AuthContext";
@@ -68,33 +69,43 @@ export default function PurchasesPage() {
   useEffect(() => {
     if (authLoading || !token) return;
     fetchPurchases();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, authLoading]);
 
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
-        <h1 className="text-lg font-medium text-gray-900">Purchases dashboard</h1>
+    <div className="w-full min-h-full bg-gray-50/50">
+      <div className="flex flex-col gap-3 border-b border-gray-200 bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between lg:px-6">
+        <div>
+          <h1 className="text-lg font-semibold text-[#132745]">
+            Purchases dashboard
+          </h1>
+          <p className="text-sm text-[#6B7C93]">
+            Manage and track purchase records
+          </p>
+        </div>
         <button
           type="button"
           onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-1.5 rounded-md bg-[#185FA5] px-4 py-2 text-sm font-medium text-white hover:bg-[#0C447C]"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-[#1F3A5F] px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-[#132745]"
         >
           <PlusIcon className="h-4 w-4" />
           Create purchase
         </button>
       </div>
 
-      <div className="flex flex-col gap-5 p-4">
-        {loading && <p className="text-gray-500">Loading purchases…</p>}
+      <div className="flex flex-col gap-5 p-4 lg:p-6">
         {error && <p className="text-red-600">{error}</p>}
         {deleteError && <p className="text-red-600">{deleteError}</p>}
-        {!loading && !error && (
-          <PurchasesTable
-            data={data}
-            onEdit={(purchase) => setEditPurchase(purchase)}
-            onDelete={handleDelete}
-          />
+        {loading ? (
+          <PurchasesPageSkeleton />
+        ) : (
+          !error && (
+            <PurchasesTable
+              data={data}
+              onEdit={(purchase) => setEditPurchase(purchase)}
+              onDelete={handleDelete}
+            />
+          )
         )}
       </div>
 
