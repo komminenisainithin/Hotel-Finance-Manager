@@ -24,8 +24,8 @@ type CardConfig = {
   value: number;
   countLabel: string;
   icon: LucideIcon;
-  iconClass: string;
-  ringClass: string;
+  accent: string;
+  soft: string;
   valueClass?: string;
 };
 
@@ -38,58 +38,60 @@ export default function KpiCards({ totals, counts }: Props) {
       value: totals.sales,
       countLabel: `${counts.sales} record${counts.sales === 1 ? "" : "s"}`,
       icon: TrendingUp,
-      iconClass: "text-teal-600",
-      ringClass: "bg-teal-50",
+      accent: "text-teal-700",
+      soft: "bg-teal-50",
     },
     {
       label: "Purchases",
       value: totals.purchases,
       countLabel: `${counts.purchases} record${counts.purchases === 1 ? "" : "s"}`,
       icon: ShoppingCart,
-      iconClass: "text-green-600",
-      ringClass: "bg-green-50",
+      accent: "text-emerald-700",
+      soft: "bg-emerald-50",
     },
     {
       label: "Expenses",
       value: totals.expenses,
       countLabel: `${counts.expenses} record${counts.expenses === 1 ? "" : "s"}`,
       icon: BadgeDollarSign,
-      iconClass: "text-red-600",
-      ringClass: "bg-red-50",
+      accent: "text-rose-700",
+      soft: "bg-rose-50",
     },
     {
       label: "Profit",
       value: totals.profit,
       countLabel: profitPositive ? "In the green" : "Operating loss",
       icon: profitPositive ? TrendingUp : TrendingDown,
-      iconClass: profitPositive ? "text-[#185FA5]" : "text-red-600",
-      ringClass: profitPositive ? "bg-blue-50" : "bg-red-50",
-      valueClass: profitPositive ? "text-[#185FA5]" : "text-red-600",
+      accent: profitPositive ? "text-[#E96B2E]" : "text-rose-700",
+      soft: profitPositive ? "bg-orange-50" : "bg-rose-50",
+      valueClass: profitPositive ? "text-[#E96B2E]" : "text-rose-700",
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
       {cards.map((card) => {
         const Icon = card.icon;
         return (
           <div
             key={card.label}
-            className="flex items-start justify-between rounded-2xl border border-gray-200 bg-white px-4 py-4 shadow-sm transition hover:shadow"
+            className="flex items-start justify-between gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-4 shadow-sm"
           >
-            <div className="flex flex-col gap-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-                {card.label}
-              </p>
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-[#6B7C93]">{card.label}</p>
               <p
-                className={`text-2xl font-semibold ${card.valueClass ?? "text-gray-900"}`}
+                className={`mt-1 truncate text-xl font-semibold tracking-tight sm:text-2xl ${
+                  card.valueClass ?? "text-[#132745]"
+                }`}
               >
                 {formatInr(card.value)}
               </p>
-              <p className="text-xs text-gray-500">{card.countLabel}</p>
+              <p className="mt-1 text-xs text-[#6B7C93]">{card.countLabel}</p>
             </div>
-            <div className={`rounded-full p-2.5 ${card.ringClass}`}>
-              <Icon className={`h-5 w-5 ${card.iconClass}`} />
+            <div
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${card.soft}`}
+            >
+              <Icon className={`h-4 w-4 ${card.accent}`} />
             </div>
           </div>
         );

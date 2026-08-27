@@ -1,15 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
+import { useEffect } from "react";
 
 import FilterBar from "@/app/components/dashboard/FilterBar";
+import { useDashboard } from "@/app/components/dashboard/DashboardContext";
 import KpiCards from "@/app/components/dashboard/KpiCards";
 import OverviewChart from "@/app/components/dashboard/OverviewChart";
-import RecentActivity from "@/app/components/dashboard/RecentActivity";
 import { useAuth } from "@/app/context/AuthContext";
 import {
   getDashboard,
-  type DashboardData,
   type DashboardFilter,
 } from "@/app/lib/apis/dashboard";
 
@@ -24,36 +24,42 @@ const FILTER_LABELS: Record<DashboardFilter, string> = {
 
 function KpiSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
       {Array.from({ length: 4 }).map((_, idx) => (
         <div
           key={idx}
-          className="h-[112px] animate-pulse rounded-2xl border border-gray-200 bg-gray-100/60"
+          className="h-[112px] animate-pulse rounded-2xl border border-gray-200/80 bg-white"
         />
       ))}
     </div>
   );
 }
 
-function PanelSkeleton({ height = 260 }: { height?: number }) {
+function ChartSkeleton() {
   return (
-    <div
-      className="animate-pulse rounded-2xl border border-gray-200 bg-gray-100/60"
-      style={{ height }}
-    />
+    <div className="h-[320px] animate-pulse rounded-2xl border border-gray-200/80 bg-white" />
   );
 }
 
 export default function DashboardPage() {
   const { token, loading: authLoading } = useAuth();
-  const [filter, setFilter] = useState<DashboardFilter>("all");
-  const [startDate, setStartDate] = useState<string | undefined>();
-  const [endDate, setEndDate] = useState<string | undefined>();
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    filter,
+    startDate,
+    endDate,
+    setRange,
+    data,
+    setData,
+    loading,
+    setLoading,
+    error,
+    setError,
+  } = useDashboard();
 
-  const fetchDashboard = useCallback(() => {
+  useEffect(() => {
+    if (authLoading || !token) return;
+    if (filter === "custom" && (!startDate || !endDate)) return;
+
     setLoading(true);
     setError(null);
     getDashboard({ filter, startDate, endDate })
@@ -70,52 +76,68 @@ export default function DashboardPage() {
         ),
       )
       .finally(() => setLoading(false));
-  }, [filter, startDate, endDate]);
+  }, [
+    token,
+    authLoading,
+    filter,
+    startDate,
+    endDate,
+    setData,
+    setLoading,
+    setError,
+  ]);
 
-  useEffect(() => {
-    if (authLoading || !token) return;
-    if (filter === "custom" && (!startDate || !endDate)) return;
-    fetchDashboard();
-  }, [token, authLoading, filter, startDate, endDate, fetchDashboard]);
+  const customWaiting = filter === "custom" && (!startDate || !endDate);
 
-  const customWaiting =
-    filter === "custom" && (!startDate || !endDate);
+  const rangeLabel =
+    filter === "custom" && startDate && endDate
+      ? `${startDate} → ${endDate}`
+      : FILTER_LABELS[filter];
 
   return (
-    <div className="w-full">
-      <div className="flex flex-col gap-3 border-b border-gray-200 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-lg font-medium text-gray-900">Dashboard</h1>
-          <p className="text-xs text-gray-500">
-            {FILTER_LABELS[filter]}
-            {filter === "custom" && startDate && endDate && (
-              <span className="ml-1 text-gray-400">
-                · {startDate} → {endDate}
-              </span>
-            )}
-          </p>
-        </div>
-        <FilterBar
-          filter={filter}
-          startDate={startDate}
-          endDate={endDate}
-          onChange={(next) => {
-            setFilter(next.filter);
-            setStartDate(next.startDate);
-            setEndDate(next.endDate);
-          }}
+    <>
+      {/* Mobile-only brand bar — desktop keeps logo in the sidebar */}
+      <div className="flex items-center border-b border-gray-200 bg-white px-4 py-3 lg:hidden">
+        <Image
+          src="/logo2.svg"
+          alt="Tiffin Books"
+          width={148}
+          height={44}
+          priority
+          unoptimized
+          className="h-9 w-auto"
         />
       </div>
 
-      <div className="flex flex-col gap-5 p-4">
+      <header className="border-b border-gray-200 bg-white px-4 py-4 lg:px-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-xl font-semibold tracking-tight text-[#132745]">
+              Dashboard
+            </h1>
+            <p className="mt-0.5 text-sm text-[#6B7C93]">
+              Overview for <span className="font-medium text-[#1F3A5F]">{rangeLabel}</span>
+            </p>
+          </div>
+
+          <FilterBar
+            filter={filter}
+            startDate={startDate}
+            endDate={endDate}
+            onChange={setRange}
+          />
+        </div>
+      </header>
+
+      <div className="flex flex-col gap-5 p-4 lg:p-6">
         {error && (
-          <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <div className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-sm text-rose-700">
             {error}
           </div>
         )}
 
         {customWaiting && !data && (
-          <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-sm text-amber-900">
             Pick a start and end date, then press Apply to load the dashboard.
           </div>
         )}
@@ -123,21 +145,15 @@ export default function DashboardPage() {
         {loading || !data ? (
           <>
             <KpiSkeleton />
-            <PanelSkeleton height={260} />
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-              <PanelSkeleton height={280} />
-              <PanelSkeleton height={280} />
-              <PanelSkeleton height={280} />
-            </div>
+            <ChartSkeleton />
           </>
         ) : (
           <>
             <KpiCards totals={data.totals} counts={data.counts} />
             <OverviewChart totals={data.totals} />
-            <RecentActivity recent={data.recent} />
           </>
         )}
       </div>
-    </div>
+    </>
   );
 }

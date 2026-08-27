@@ -69,22 +69,30 @@ export default function FilterBar({
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap items-center gap-1.5">
+    <div className="flex flex-col items-stretch gap-2 sm:items-end">
+      <div
+        role="tablist"
+        aria-label="Time range"
+        className="flex flex-wrap gap-1 rounded-lg bg-gray-100 p-1"
+      >
         {PILLS.map((pill) => {
           const active = filter === pill.id;
           return (
             <button
               key={pill.id}
               type="button"
+              role="tab"
+              aria-selected={active}
               onClick={() => handlePill(pill.id)}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium transition ${
+              className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
                 active
-                  ? "bg-[#185FA5] text-white shadow-sm"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-white text-[#132745] shadow-sm"
+                  : "text-[#6B7C93] hover:text-[#132745]"
               }`}
             >
-              {pill.id === "custom" && <CalendarRange className="h-3.5 w-3.5" />}
+              {pill.id === "custom" && (
+                <CalendarRange className="h-3.5 w-3.5" />
+              )}
               {pill.label}
             </button>
           );
@@ -92,38 +100,39 @@ export default function FilterBar({
       </div>
 
       {filter === "custom" && (
-        <div className="flex flex-wrap items-end gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2.5">
-          <div className="flex flex-col gap-1">
-            <label className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
-              Start
-            </label>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5">
             <input
               type="date"
+              aria-label="Start date"
               value={draftStart}
               onChange={(e) => setDraftStart(e.target.value)}
-              className="rounded-md border border-gray-300 px-2.5 py-1.5 text-sm outline-none focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5]"
+              className={`min-w-0 border-0 bg-transparent text-sm outline-none focus:ring-0 ${
+                draftStart ? "text-[#132745]" : "text-[#6B7C93]"
+              }`}
             />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
-              End
-            </label>
+            <span className="text-xs text-[#6B7C93]">–</span>
             <input
               type="date"
+              aria-label="End date"
               value={draftEnd}
               onChange={(e) => setDraftEnd(e.target.value)}
-              className="rounded-md border border-gray-300 px-2.5 py-1.5 text-sm outline-none focus:border-[#185FA5] focus:ring-1 focus:ring-[#185FA5]"
+              className={`min-w-0 border-0 bg-transparent text-sm outline-none focus:ring-0 ${
+                draftEnd ? "text-[#132745]" : "text-[#6B7C93]"
+              }`}
             />
           </div>
           <button
             type="button"
             onClick={handleApply}
-            className="rounded-md bg-[#185FA5] px-3.5 py-1.5 text-sm font-medium text-white hover:bg-[#0C447C]"
+            className="rounded-lg bg-[#E96B2E] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#D45A1F]"
           >
             Apply
           </button>
           {localError && (
-            <p className="w-full text-xs text-red-600">{localError}</p>
+            <p className="w-full text-xs text-red-600 sm:text-right">
+              {localError}
+            </p>
           )}
         </div>
       )}

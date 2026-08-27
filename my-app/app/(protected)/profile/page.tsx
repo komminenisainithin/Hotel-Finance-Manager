@@ -462,37 +462,28 @@ export default function ProfilePage() {
             </section>
 
             {/* Session */}
-            <section className="rounded-2xl border border-red-100 bg-white p-6 shadow-sm">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50">
-                  <LogOut className="h-4 w-4 text-red-500" />
-                </div>
-                <div>
-                  <h2 className="text-base font-semibold text-gray-900">
-                    Sign out
-                  </h2>
-                  <p className="text-xs text-gray-500">
-                    End your current session on this device
-                  </p>
-                </div>
-              </div>
+            <section className="rounded-2xl border border-gray-200 bg-white p-2 shadow-sm">
               <button
                 type="button"
                 onClick={handleLogout}
                 disabled={loggingOut}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-100 disabled:opacity-60 sm:w-auto"
+                className="flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-left transition hover:bg-red-50 disabled:opacity-60"
               >
-                {loggingOut ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Logging out…
-                  </>
-                ) : (
-                  <>
-                    <LogOut className="h-4 w-4" />
-                    Log out
-                  </>
-                )}
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50">
+                  {loggingOut ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-red-500" />
+                  ) : (
+                    <LogOut className="h-4 w-4 text-red-500" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-[#132745]">
+                    {loggingOut ? "Signing out…" : "Sign out"}
+                  </p>
+                  <p className="text-xs text-[#6B7C93]">
+                    End your current session on this device
+                  </p>
+                </div>
               </button>
             </section>
           </div>
