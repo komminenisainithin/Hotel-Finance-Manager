@@ -37,4 +37,5 @@ salesSchema.pre("save", function () {
 
 const Sales = mongoose.model("Sales", salesSchema);
 
+salesSchema.index({ date: 1 });
 export default Sales;

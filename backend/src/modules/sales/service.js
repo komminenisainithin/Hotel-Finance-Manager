@@ -76,21 +76,61 @@ export const createSalesService = async (userId, payload) => {
     }
 };
 
+const startOfDay = (dateStr) => {
+    const date = new Date(dateStr);
+    date.setUTCHours(0, 0, 0, 0);
+    return date;
+};
+
+const startOfNextDay = (dateStr) => {
+    const date = startOfDay(dateStr);
+    date.setUTCDate(date.getUTCDate() + 1);
+    return date;
+};
+
 export const getSalesService = async (page, per_page, start_date, end_date) => {
-    try{
+    try {
+        const pageNum = Math.max(1, Number(page) || 1);
+        const perPageNum = Math.max(1, Number(per_page) || 50);
+
         const query = {};
-        if (start_date) {
-            query.date = { $gte: new Date(start_date) };
+        if (start_date || end_date) {
+            query.date = {};
+            if (start_date) {
+                const start = startOfDay(start_date);
+                if (Number.isNaN(start.getTime())) {
+                    return { success: false, message: "Invalid start_date", status: 400 };
+                }
+                query.date.$gte = start;
+            }
+            if (end_date) {
+                const end = startOfNextDay(end_date);
+                if (Number.isNaN(end.getTime())) {
+                    return { success: false, message: "Invalid end_date", status: 400 };
+                }
+                // Inclusive end date: match through the end of that calendar day
+                query.date.$lt = end;
+            }
         }
-        if (end_date) {
-            query.date = { $lte: new Date(end_date) };
-        }
-        const sales = await Sales.find(query).skip((page - 1) * per_page).limit(per_page).sort({ date: -1 }).lean();
+
+        const sales = await Sales.find(query)
+            .skip((pageNum - 1) * perPageNum)
+            .limit(perPageNum)
+            .sort({ date: -1 })
+            .lean();
+        const total = await Sales.countDocuments(query);
         return {
             success: true,
             message: "Sales fetched successfully",
             status: 200,
-            data: sales
+            data: {
+                sales,
+                total,
+                page: pageNum,
+                per_page: perPageNum,
+                total_pages: Math.ceil(total / perPageNum) || 0,
+                total_items: total,
+            }
         };
     } catch (error) {
         return {
